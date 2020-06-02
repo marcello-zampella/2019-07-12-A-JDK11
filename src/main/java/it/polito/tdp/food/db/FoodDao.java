@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.polito.tdp.food.model.Collegamento;
 import it.polito.tdp.food.model.Condiment;
 import it.polito.tdp.food.model.Food;
 import it.polito.tdp.food.model.Portion;
@@ -108,5 +109,73 @@ public class FoodDao {
 			return null ;
 		}
 
+	}
+	
+	public ArrayList<Food> getFoodByPortion(int n){
+
+		String sql = "SELECT f.display_name AS nome , f.food_code AS codice \n " + 
+				"FROM food f, portion p\n " + 
+				"WHERE f.food_code=p.food_code AND p.portion_default<=? " ;
+		try {
+			Connection conn = DBConnect.getConnection() ;
+
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			st.setInt(1, n);
+			
+			ArrayList<Food> list = new ArrayList<Food>() ;
+			
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				try {
+					list.add(new Food(res.getInt("codice"), res.getString("nome")));
+				} catch (Throwable t) {
+					t.printStackTrace();
+				}
+			}
+			
+			conn.close();
+			return list ;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null ;
+		}
+
+	
+	}
+
+	public ArrayList<Collegamento> getCollegamento() {
+
+		String sql = "SELECT f.food_code AS cod1, f.display_name AS nome1, f2.display_name AS nome2 , f2.food_code AS cod2,(c.condiment_calories) AS calorie\n" + 
+				"FROM food f, food_condiment fc, food f2, food_condiment fc2, condiment c\n" + 
+				"WHERE f.food_code=fc.food_code AND f2.food_code=fc2.food_code \n" + 
+				"AND f.food_code<f2.food_code AND fc.condiment_code=fc2.condiment_code\n" + 
+				"AND c.condiment_code=fc.condiment_code\n" + 
+				"GROUP BY f.food_code, f2.food_code " ;
+		try {
+			Connection conn = DBConnect.getConnection() ;
+
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			
+			ResultSet res = st.executeQuery() ;
+			ArrayList<Collegamento> li= new ArrayList<Collegamento>();
+			while(res.next()) {
+				try {
+					li.add(new Collegamento(new Food(res.getInt("cod1"),res.getString("nome1")),new Food(res.getInt("cod2"),res.getString("nome2")),res.getDouble("calorie")));
+				} catch (Throwable t) {
+					t.printStackTrace();
+				}
+			}
+			
+			conn.close();
+			return li ;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null ;
+		}
+
+	
 	}
 }
