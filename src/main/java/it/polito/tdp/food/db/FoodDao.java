@@ -113,9 +113,11 @@ public class FoodDao {
 	
 	public ArrayList<Food> getFoodByPortion(int n){
 
-		String sql = "SELECT f.display_name AS nome , f.food_code AS codice \n " + 
-				"FROM food f, portion p\n " + 
-				"WHERE f.food_code=p.food_code AND p.portion_default<=? " ;
+		String sql = "SELECT f.food_code AS codice, f.display_name AS nome, COUNT(f.food_code) AS conto \n " + 
+				"FROM food f, portion p \n " + 
+				"WHERE f.food_code=p.food_code \n " + 
+				"GROUP BY f.food_code \n " + 
+				"HAVING conto<=? " ;
 		try {
 			Connection conn = DBConnect.getConnection() ;
 

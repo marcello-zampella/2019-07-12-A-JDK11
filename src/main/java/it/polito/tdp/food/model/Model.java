@@ -1,6 +1,7 @@
 package it.polito.tdp.food.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
@@ -13,6 +14,7 @@ import it.polito.tdp.food.db.FoodDao;
 public class Model {
 	SimpleWeightedGraph<Food, DefaultWeightedEdge> grafo;
 	ArrayList<Food> cibi;
+	
 	public void creaGrafo(int i) {
 		FoodDao dao=new FoodDao();
 		cibi=dao.getFoodByPortion(i);
@@ -20,7 +22,8 @@ public class Model {
 		Graphs.addAllVertices(grafo, cibi);
 		int dim=cibi.size();
 		for(Collegamento c:dao.getCollegamento()) {
-			DefaultWeightedEdge ed=Graphs.addEdge(grafo, c.getF1(), c.getF2(), c.getPeso());
+			if(grafo.containsVertex(c.getF1())&& grafo.containsVertex(c.getF2()))
+				Graphs.addEdge(grafo, c.getF1(), c.getF2(), c.getPeso());
 				}
 	}
 
